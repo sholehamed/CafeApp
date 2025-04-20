@@ -1,0 +1,81 @@
+﻿@using CafeApp.Business.Helpers.Dtos
+@using CafeApp.Domain.Interfaces
+@using Microsoft.AspNetCore.Components.Forms
+@using Microsoft.JSInterop
+@using System.Globalization
+@inject IJSRuntime _js;
+@inject INotification _notification;
+@inject IApplicationUnit _unit;
+@inject NavigationManager _navigation;
+@inject IDialogService _dialogService;
+<div class="invoice-wrapper">
+    <!-- فاکتور اول -->
+    <div class="invoice-item">
+        <header class="invoice-header">
+            <div class="header-left">
+                <div class="detail">
+                    <div>
+                        @* <MudTextField Label="مشتری" ReadOnly="true" T="string" @bind-Value="Item.CustomerName"></MudTextField> *@
+                        
+                    </div>
+                   </div>
+@*                 <div class="detail">ویتر:  @Item.UserName</div>
+ *@            </div>
+            <div class="header-center">
+                <div class="table-number">@Table.Factor.TableTitle</div>
+            </div>
+            <div class="header-right">
+                <div class="detail">تاریخ: @Table.Factor.RecordDate</div>
+                <div class="detail">ساعت: @Table.Factor.RecordTime</div>
+
+                @* <div class="detail">فاکتور: @Item.FactorNumber</div> *@
+            </div>
+        </header>
+        <div class="invoice-body">
+            <table class="product-table">
+                <thead>
+                    <tr>
+                        <th>محصول</th>
+                        <th> نعداد</th>
+                        <th class="NotMobile">تسویه شده</th>
+                        <th>قیمت</th>
+                        <th>فی</th>
+                        <th class="NotMobile">تحویل</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Table.Factor.Items)
+                    {
+                    <FactorItem Factor="this"  Item="item"></FactorItem>
+                    }
+                </tbody>
+            </table>
+            <div class="invoice-summary">
+                <div class="summary-item">
+                    <span class="summary-label">مجموع:</span>
+                    <span class="summary-value">@Table.Factor.TotalPrice</span>
+                </div>
+                <div class="summary-item" style="background-color:#beff50">
+                    <span class="summary-label">تسویه دنگی:</span>
+                    <span class="summary-value">@_livePaidAmount</span>
+                </div>
+                <div class="summary-item">
+                    <span class="summary-label">تسویه شده:</span>
+                    <span class="summary-value">@Table.Factor.Paid</span>
+                </div>
+                <div class="summary-item">
+                    <span class="summary-label">مانده:</span>
+                    <span class="summary-value">@(Table.Factor.TotalPrice - Table.Factor.Paid)</span>
+                </div>
+            </div>
+        </div>
+        <div class="invoice-footer">
+            <button @onclick=Pay class="fishbtn btn btn-settle-all">تسویه کل</button>
+            <button id="btndongi" @onclick="EnableDongi"   class="btn btn-settle-partial">تسویه دنگی</button>
+            <button @onclick="DeleteOrder" class="fishbtn btn btn-delete">حذف</button>
+            <button @onclick="UpdateOrder" class="fishbtn btn btn-edit">ویرایش</button>
+            <button @onclick="ChangeTable" style="background-color:orange" class="fishbtn btn btn-edit">تغییر میز</button>
+
+        </div>
+    </div>
+</div>

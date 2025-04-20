@@ -1,0 +1,11 @@
+﻿@page "/"
+@page "/table/{TableId}"
+@using CafeApp.Shared.Layouts
+@layout EmptyLayout
+<AntiforgeryToken></AntiforgeryToken>
+
+<CafeApp.Shared.Pages.MenuTemplate TableId="@TableId" ></CafeApp.Shared.Pages.MenuTemplate>
+@code {
+    [Parameter]
+    public string? TableId { get; set; }
+ }

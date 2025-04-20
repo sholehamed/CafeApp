@@ -1,0 +1,273 @@
+﻿@page "/dashboard/menuorders"
+
+@using System.Diagnostics
+@using CafeApp.Business.Helpers.Dtos
+@inject IApplicationUnit _unit
+<div class="d-flex flex-column mud-width-full mud-height-full">
+    <MudToolBar Class="gap-4">
+        <MudButton OnClick="SaveCategoryData" Variant="Variant.Filled" Color="Color.Primary">ذخیره لیست دسته بندی</MudButton>
+        <MudSpacer></MudSpacer>
+        <MudButton OnClick="SaveProductData" Variant="Variant.Filled" Color="Color.Primary">ذخیره لیست محصولات</MudButton>
+
+    </MudToolBar>
+    <MudStack Row>
+        <MudItem xs="6">
+
+            <MudPaper Class="ma-4 flex-grow-1">
+                <MudList T="DropCategoryItem" Clickable="true" Class="d-flex flex-column mud-height-full">
+                    <MudListSubheader>دسته بندی ها</MudListSubheader>
+                    <BlazorSortableList.SortableList Style="padding:5px" T="DropCategoryItem" Items="_dropzoneCategories" OnUpdate="SortCategoryList">
+                        <SortableItemTemplate >
+                            <MudStack @onclick="()=>LoadProductsData(context.Id)" Row Style="margin:5px">
+                                <MudAvatar>
+                                    <MudImage Src=@string.Format("{0},{1}","data:image/png;base64",context.Image)></MudImage>
+                                </MudAvatar>
+                                <MudText>@string.Format("{0} ({1})", context.Title, context.Order)</MudText>
+                            </MudStack>
+                        </SortableItemTemplate>
+                    </BlazorSortableList.SortableList>
+                </MudList>
+            </MudPaper>
+
+        </MudItem>
+
+        @code {
+            private void SortCategoryList((int oldIndex, int newIndex) indices)
+        {
+            var items = this._dropzoneCategories;
+            var itemToMove = items[indices.oldIndex];
+
+            items.RemoveAt(indices.oldIndex);
+
+            if (indices.newIndex < items.Count)
+            {
+                items.Insert(indices.newIndex, itemToMove);
+            }
+            else
+            {
+                items.Add(itemToMove);
+            }
+            var t = _dropzoneCategories;
+            // _dropzoneCategories.Find(x => x.Id == dropItem.Item.Id).Order = nowindex;
+            // _dropzoneCategories = _dropzoneCategories.OrderBy(x => x.Order).ToList();
+            for (int i = 0; i < _dropzoneCategories.Count; i++)
+            {
+                _dropzoneCategories[i].Order = i;
+            }
+            StateHasChanged();
+        }
+        private void SortProductList((int oldIndex, int newIndex) indices)
+        {
+            var items = this._dropzoneProducts;
+            var itemToMove = items[indices.oldIndex];
+
+            items.RemoveAt(indices.oldIndex);
+
+            if (indices.newIndex < items.Count)
+            {
+                items.Insert(indices.newIndex, itemToMove);
+            }
+            else
+            {
+                items.Add(itemToMove);
+            }
+            var t = _dropzoneProducts;
+            // _dropzoneCategories.Find(x => x.Id == dropItem.Item.Id).Order = nowindex;
+            // _dropzoneCategories = _dropzoneCategories.OrderBy(x => x.Order).ToList();
+            for (int i = 0; i < _dropzoneProducts.Count; i++)
+            {
+                _dropzoneProducts[i].Order = i;
+            }
+            StateHasChanged();
+        }
+        }
+
+       <MudItem xs="6">
+            <MudPaper Class="ma-4 flex-grow-1">
+                <MudList T="DropProductItem" Clickable="true" Class="d-flex flex-column mud-height-full">
+                    <MudListSubheader>محصولات دسته بندی</MudListSubheader>
+                    <BlazorSortableList.SortableList Style="padding:5px" T="DropProductItem" Items="_dropzoneProducts" OnUpdate="SortProductList">
+                        <SortableItemTemplate>
+                            <MudStack  Row Style="margin:5px">
+                                <MudAvatar>
+                                    <MudImage Src=@string.Format("{0},{1}","data:image/png;base64",context.Image)></MudImage>
+                                </MudAvatar>
+                                <MudText>@string.Format("{0} ({1})", context.Title, context.Order)</MudText>
+                            </MudStack>
+                        </SortableItemTemplate>
+                    </BlazorSortableList.SortableList>
+                </MudList>
+            </MudPaper>
+        
+        </MudItem>
+    </MudStack>
+
+</div>
+@code {
+
+
+
+
+    private MudDropContainer<DropCategoryItem> _Categorycontainer;
+    private MudDropContainer<DropProductItem> _Productcontainer;
+
+
+
+    int _productPrevIndex = 0;
+    int _categoryPrevIndex = 0;
+
+
+    protected override async Task OnInitializedAsync()
+    {
+    }
+    protected async override Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+            await LoadCategoriesData();
+    }
+
+    private void CategoryUpdated(MudItemDropInfo<DropCategoryItem> dropItem)
+    {
+        int nowindex = dropItem.IndexInZone;
+        dropItem.Item.Selector = dropItem.DropzoneIdentifier;
+
+        var indexOffset = dropItem.DropzoneIdentifier switch
+        {
+            "2" => _dropzoneCategories.Count(x => x.Selector == "1"),
+            _ => 0
+        };
+        if (_categoryPrevIndex < nowindex)
+        {
+            foreach (var item in _dropzoneCategories)
+            {
+                if (item.Order > _categoryPrevIndex && item.Order <= nowindex)
+                    item.Order--;
+            }
+        }
+        if (_categoryPrevIndex > nowindex)
+        {
+            foreach (var item in _dropzoneCategories)
+            {
+                if (item.Order >= nowindex && item.Order < _categoryPrevIndex)
+                    item.Order++;
+            }
+        }
+        _dropzoneCategories.Find(x => x.Id == dropItem.Item.Id).Order = nowindex;
+        _dropzoneCategories = _dropzoneCategories.OrderBy(x => x.Order).ToList();
+        RefreshCategoryContainer();
+
+    }
+    private void CategoryPicked(MudDragAndDropItemTransaction<DropCategoryItem> f)
+    {
+        _categoryPrevIndex = f.Index;
+    }
+    private void ProductPicked(MudDragAndDropItemTransaction<DropProductItem> f)
+    {
+        _productPrevIndex = f.Index;
+    }
+    private void ProductUpdated(MudItemDropInfo<DropProductItem> dropItem)
+    {
+        int nowindex = dropItem.IndexInZone;
+        dropItem.Item.Selector = dropItem.DropzoneIdentifier;
+
+        var indexOffset = dropItem.DropzoneIdentifier switch
+        {
+            "2" => _dropzoneProducts.Count(x => x.Selector == "1"),
+            _ => 0
+        };
+        if (_productPrevIndex < nowindex)
+        {
+            foreach (var item in _dropzoneProducts)
+            {
+                if (item.Order > _productPrevIndex && item.Order <= nowindex)
+                    item.Order--;
+            }
+        }
+        if (_productPrevIndex > nowindex)
+        {
+            foreach (var item in _dropzoneProducts)
+            {
+                if (item.Order >= nowindex && item.Order < _productPrevIndex)
+                    item.Order++;
+            }
+        }
+        _dropzoneProducts.Find(x => x.Id == dropItem.Item.Id).Order = nowindex;
+        _dropzoneProducts = _dropzoneProducts.OrderBy(x => x.Order).ToList();
+        RefreshProductContainer();
+
+    }
+
+    private List<DropCategoryItem> _dropzoneCategories = new();
+    private List<DropProductItem> _dropzoneProducts = new();
+
+
+
+
+    private void RefreshCategoryContainer()
+    {
+        //update the binding to the container
+        StateHasChanged();
+
+        //the container refreshes the internal state
+        // _Categorycontainer.Refresh();
+    }
+    private void RefreshProductContainer()
+    {
+        //update the binding to the container
+        StateHasChanged();
+
+        //the container refreshes the internal state
+    }
+
+    private async Task LoadCategoriesData()
+    {
+        _dropzoneCategories = await LoadCategories();
+        RefreshCategoryContainer();
+    }
+    private async Task LoadProductsData(Guid id)
+    {
+        _dropzoneProducts = await LoadProducts(id);
+        RefreshProductContainer();
+    }
+
+    private async Task<List<DropCategoryItem>> LoadCategories()
+    {
+        ListProductCategoryParameter categoryParameter = new ListProductCategoryParameter();
+        var res = await _unit.Categories.GetPaged(categoryParameter.GetSpecifications(), categoryParameter);
+        return res.Items.OrderBy(x => x.Order).Select(x => new DropCategoryItem { Id = x.Id, Title = x.Title, Image = x.Image, Order = x.Order, Selector = "1" }).ToList();
+    }
+    private async Task<List<DropProductItem>> LoadProducts(Guid id)
+    {
+        var res = await _unit.Categories.GetProducts(id);
+        return res.OrderBy(x => x.Order).Select(x => new DropProductItem { Id = x.Id, Title = x.Title, Image = x.Image, Order = x.Order, Selector = "1" }).ToList();
+    }
+
+    private async Task SaveCategoryData()
+    {
+        UpdateCategoryOrderParameterCollection parameters = new UpdateCategoryOrderParameterCollection
+            {
+                Items = _dropzoneCategories.Select(x => new UpdateCategoryOrderParameter { CategoryId = x.Id, Order = x.Order }).ToList()
+            };
+        await _unit.Categories.UpdateOrder(parameters);
+    }
+    private async Task SaveProductData()
+    {
+        UpdateProductsOrderCollection parameters = new UpdateProductsOrderCollection
+            {
+                Items = _dropzoneProducts.Select(x => new UpdateProductOrderParameter { ProductId = x.Id, Order = x.Order }).ToList()
+            };
+        await _unit.Products.UpdateOrder(parameters);
+    }
+
+
+    [DebuggerDisplay("id={Id},title={Title},order={Order}")]
+    public class DropCategoryItem : ProductCategoryDto
+    {
+        public string Selector { get; set; }
+    }
+    [DebuggerDisplay("id={Id},title={Title},order={Order}")]
+    public class DropProductItem : ProductDto
+    {
+        public string Selector { get; set; }
+    }
+}

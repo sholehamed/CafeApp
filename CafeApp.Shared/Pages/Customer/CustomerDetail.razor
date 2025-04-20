@@ -1,0 +1,80 @@
+﻿@using System.Globalization
+@using Microsoft.AspNetCore.Components.Forms
+@inject IApplicationUnit _unit
+@page "/dashboard/customers/new"
+@page "/dashboard/customers/{id}"
+<MudContainer Style="margin:20px;overflow-y:hidden" MaxWidth=MaxWidth.Large Class="mt-16">
+    <MudPaper Elevation="3">
+        <MudText Typo="Typo.h3" Align="Align.Center" GutterBottom="true">@Title</MudText>
+        <MudGrid Class="mt-16">
+            <MudItem xs="7">
+                <MudPaper Style="margin:10px" Elevation="3">
+
+                    <MudGrid>
+                        <MudItem Style="margin:5px" xs="6">
+                            <MudTextField Variant=Variant.Outlined T="string" Label="نام" @bind-Value=value.FirstName />
+                        </MudItem>
+                        <MudItem Style="margin:5px" xs="6">
+                            <MudTextField Variant=Variant.Outlined T="string" Label="نام خانوادگی" @bind-Value=value.LastName />
+                        </MudItem>
+                        
+                       
+                        <MudItem Style="margin:5px" xs="6">
+                            <MudTextField Variant=Variant.Outlined T="string" Label=" تلفن همراه" InputType="InputType.Telephone" @bind-Value=value.PhoneNumber />
+                        </MudItem>
+                        <MudItem Style="margin:5px" xs="6">
+                            <MudSelect Variant=Variant.Outlined T="byte" @bind-Value=value.Gender Label="  جنسیت">
+                                <MudSelectItem T="byte" Value="0">مونث</MudSelectItem>
+                                <MudSelectItem T="byte" Value="1">مذکر</MudSelectItem>
+
+                            </MudSelect>
+                        </MudItem>
+                        <MudItem Style="margin:5px" xs="6">
+                            <MudDatePicker Culture="cultureInfo" @bind-Date="value.Birthday"></MudDatePicker>
+                        </MudItem>
+                        <MudItem Style="margin:5px" xs="6">
+                            <MudTextField Lines="3" Variant=Variant.Outlined T="string" Label="آدرس" InputMode="InputMode.text" InputType="InputType.Text" @bind-Value=value.Address />
+                        </MudItem>
+
+                        <MudItem Style="margin:5px" xs="12">
+                            <MudText Inline=true>وضعیت</MudText>
+                            <MudToggleIconButton @bind-Toggled=@value.IsActive @ref=_isActive Variant=Variant.Text ToggledSize=Size.Large Color="Color.Error" ToggledColor=Color.Success Size=Size.Large ToggledIcon="@Icons.Material.Filled.ToggleOn" ToggledTitle="فعال" Title="غیرفعال" Icon="@Icons.Material.Filled.ToggleOff">
+                            </MudToggleIconButton>
+                        </MudItem>
+
+                        <MudItem xs="12" Class="d-flex justify-center">
+                            <MudButton OnClick=Submit Style="margin:10px" Variant="Variant.Filled" DisableElevation="true" Color="Color.Success" Size="Size.Large" Class="mt-8">ثبت</MudButton>
+                            <MudButton Style="margin:10px" Variant="Variant.Filled" DisableElevation="true" Color="Color.Error" Size="Size.Large" Class="mt-8">لغو</MudButton>
+
+                        </MudItem>
+                    </MudGrid>
+                </MudPaper>
+            </MudItem>
+            <MudItem xs="5">
+                <MudText Typo="Typo.h5" GutterBottom="true">تصویر</MudText>
+                <MudPaper Class="d-flex flex-column" Elevation="3">
+                    <MudImage Src=@string.Format("{0},{1}","data:image/png;base64",value.Image) Height="200" Width="200" Style="border-radius:10px"></MudImage>
+                    <MudFileUpload T="IBrowserFile" Accept=".png, .jpg" FilesChanged="UploadFiles" MaximumFileCount="1">
+                        <ActivatorContent>
+                            <MudButton HtmlTag="label"
+                                       Variant="Variant.Filled"
+                                       Color="Color.Primary"
+                                       StartIcon="@Icons.Material.Filled.CloudUpload">
+                                Only image files
+                            </MudButton>
+                        </ActivatorContent>
+                    </MudFileUpload>
+
+                </MudPaper>
+            </MudItem>
+        </MudGrid>
+    </MudPaper>
+
+</MudContainer>
+@code {
+    [Parameter]
+    public string Id { get; set; }
+    CultureInfo cultureInfo = CultureInfo.GetCultureInfo("fa-ir");
+    string Title = "دسته بندی جدید";
+    private MudToggleIconButton _isActive;
+}

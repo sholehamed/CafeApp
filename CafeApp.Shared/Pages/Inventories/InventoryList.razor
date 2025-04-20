@@ -1,0 +1,64 @@
+﻿@using CafeApp.Business.Helpers.Dtos
+@using CafeApp.Business.Interfaces
+@using CafeApp.Domain.Interfaces
+@using CafeApp.Shared.RestClient.Interfaces
+@inject IApplicationUnit _unit;
+@inject IDialogService _dialogService;
+@inject INotification _notification;
+@inject IRestUnit _restUnit;
+@inject NavigationManager _navigation;
+@page "/dashboard/inventories"
+@layout AdminLayout
+
+<MudIconButton OnClick=GoToCreatePAge Icon="@Icons.Material.Filled.Add" Title="جدید">افزودن</MudIconButton>
+<MudIconButton OnClick=Sync Icon="@Icons.Material.Filled.Sync" Title="ارسال به سرور">ارسال به سرور</MudIconButton>
+<MudPaper Style="height:fit-content; margin-bottom:20px">
+    <MudStack Row>
+        <div class="col-md-2 col-3">
+            <MudTextField Label="عنوان" T="string" @bind-Value="_filter.Title"></MudTextField>
+        </div>
+        <div class="col-md-1 col-3">
+            <MudSelect Label="وضعیت" T="bool?" @bind-Value=_filter.IsActive>
+                <MudSelectItem Value=null T="bool?">همه</MudSelectItem>
+                <MudSelectItem Value=true T="bool?"> فعال</MudSelectItem>
+                <MudSelectItem Value=false T="bool?">غیرفعال</MudSelectItem>
+            </MudSelect>
+        </div>
+        <MudIconButton OnClick=_dataGrid.ReloadServerData Icon="@Icons.Material.Filled.Search" Title="ارسال به سرور">ارسال به سرور</MudIconButton>
+
+    </MudStack>
+</MudPaper>
+<MudDataGrid @ref=_dataGrid Breakpoint="Breakpoint.None" T="InventoryDto"  ServerData="LoadData" >
+    <Columns>
+        <PropertyColumn Sortable="false" Title="عنوان" Property="x => x.Title" />
+        <TemplateColumn Title="وضعیت"  >
+            <CellTemplate>
+                <MudStack   Row>
+                   <MudCheckBox Value="@context.Item.IsActive"></MudCheckBox>
+                </MudStack>
+            </CellTemplate>
+        </TemplateColumn>
+        <TemplateColumn Title="ویرایش" >
+            <CellTemplate>
+                <MudStack  Row>
+                   <MudButton OnClick="()=>Edit(context.Item.Id)">
+                       <MudIcon Icon="@Icons.Material.Filled.Edit"></MudIcon>
+                   </MudButton>
+                </MudStack>
+            </CellTemplate>
+        </TemplateColumn>
+        <TemplateColumn Title="حذف">
+            <CellTemplate>
+                <MudStack Row>
+                    <MudButton OnClick="()=>Delete(context.Item.Id)">
+                        <MudIcon Icon="@Icons.Material.Filled.Delete"></MudIcon>
+                    </MudButton>
+                </MudStack>
+            </CellTemplate>
+        </TemplateColumn>
+    </Columns>
+    <PagerContent>
+        <MudDataGridPager RowsPerPageString="اندازه صفحه"></MudDataGridPager>
+    </PagerContent>
+</MudDataGrid>
+

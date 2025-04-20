@@ -1,0 +1,69 @@
+﻿@using CafeApp.Domain.Interfaces
+@using CafeApp.Shared.Components.DashboardComponents
+@inherits LayoutComponentBase
+@inject IPlatform _platform;
+<MudRTLProvider Class="prevent-select" RightToLeft="true">
+    <MudDialogProvider />
+
+    <MudDialog/>
+    <MudThemeProvider />
+    <MudPopoverProvider />
+    <MudSnackbarProvider />
+    <MudLayout Class="dashboard">
+        <TablesPanel @ref="TablesPanel" UpdateConnecting=UpdateConnecting IsConnected="@IsConnected"></TablesPanel>
+       @*  <MudIcon Style="margin-top:100px;margin-right:20px" Size="Size.Large" Icon="@Icons.Material.Rounded.ArrowBack"></MudIcon>
+        @if (_platform.GetPlatform() == Domain.Common.Platform.App)
+        {
+            @if (IsConnected)
+            {
+                <MudStack Row="true">
+                    <MudIcon Style="margin-right:50px" Icon="@Icons.Material.Filled.Cloud"></MudIcon>
+                    <div>متصل</div>
+                </MudStack>
+            }
+            @if (!IsConnected)
+            {
+                <MudStack Row="true">
+                    <MudIcon Style="margin-right:50px" Icon="@Icons.Material.Filled.CloudOff"></MudIcon>
+                    <div>عدم اتصال</div>
+                </MudStack>
+
+            }
+
+        } *@
+        <MudDrawer Class="drawer-responsive" Style="margin-top:55px" @bind-Open="_drawerOpen" ClipMode="DrawerClipMode.Docked" OpenMiniOnHover="true" Variant="DrawerVariant.Mini" Elevation="2">
+            <NavMenu IsOpen="_drawerOpen"></NavMenu>
+        </MudDrawer>
+        <MudMainContent Class="dashboard">
+            <div style="margin-right:15px;margin-top:100px;">
+                <CascadingValue Value="TablesPanel">
+                @Body
+                </CascadingValue>
+
+            </div>
+        </MudMainContent>
+    </MudLayout>
+</MudRTLProvider>
+
+@code {
+    [CascadingParameter]
+    protected TablesPanel TablesPanel{ get; set; }
+    bool _drawerOpen = true;
+    bool IsConnected = false;
+    void DrawerToggle()
+    {
+        _drawerOpen = !_drawerOpen;
+    }
+    string GetMargin()
+    {
+        return _drawerOpen ? "" : "";
+    }
+
+    public async Task UpdateConnecting()
+    {
+
+        await InvokeAsync(()=>{
+            StateHasChanged();
+        });
+    }
+}

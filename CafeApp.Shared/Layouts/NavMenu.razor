@@ -1,0 +1,31 @@
+﻿@using Microsoft.AspNetCore.Components.Routing
+<MudNavMenu>
+    <MudNavLink Href="/dashboard/factors" title="  لیست سفارشات" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.ListAlt">لیست فاکتورها</MudNavLink>
+    <MudNavLink Href="dashboard/orders" title="   سفارشات" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Reorder">لیست سفارشات</MudNavLink>
+
+    <MudNavLink Href="" title="داشبورد مدیریت" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Dashboard">پیشخوان</MudNavLink>
+    <MudNavGroup HideExpandIcon=!IsOpen Title="رستوران" Icon="@Icons.Material.Filled.Restaurant">
+        <MudNavLink title="منوی رستوران" Href="dashboard/menuorders" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.RestaurantMenu">منو </MudNavLink>
+
+        <MudNavLink title="میزهای رستوران" Href="dashboard/tables" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.TableRestaurant">میزها </MudNavLink>
+        <MudNavLink title="افزودنی محصولات" Href="dashboard/additives" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Tag">افزودنی ها</MudNavLink>
+        <MudNavLink title="دسته بندی مربوط به محصولات" Href="dashboard/categories" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Category">دسته بندی محصولات</MudNavLink>
+        <MudNavLink title="محصولات کافه" Href="dashboard/products" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.FoodBank"> محصولات</MudNavLink>
+    </MudNavGroup>
+  @*   <MudNavGroup HideExpandIcon=!IsOpen Title="انبار" Icon="@Icons.Material.Filled.Inventory">
+        <MudNavLink title="انبارها" Href="dashboard/inventories" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Inventory2">انبارها </MudNavLink>
+        <MudNavLink title="واحدها" Href="dashboard/units" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.AcUnit">واحدها </MudNavLink>
+        <MudNavLink title="مواد اولیه انبار" Href="dashboard/materials" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Inventory2">مواد اولیه </MudNavLink>
+        <MudNavLink title="افزودنی محصولات" Href="dashboard/additives" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Tag">افزودنی ها</MudNavLink>
+        <MudNavLink title="دسته بندی مربوط به محصولات" Href="dashboard/categories" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Category">دسته بندی محصولات</MudNavLink>
+        <MudNavLink title="محصولات کافه" Href="dashboard/products" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.FoodBank"> محصولات</MudNavLink>
+    </MudNavGroup> *@
+    <MudNavLink Href="dashboard/users" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.VerifiedUser">کاربران</MudNavLink>
+    <MudNavLink Href="dashboard/customers" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Person2">مشتریان </MudNavLink>
+
+    @code {
+        [Parameter]
+        public bool IsOpen { get; set; }
+    }
+
+</MudNavMenu>

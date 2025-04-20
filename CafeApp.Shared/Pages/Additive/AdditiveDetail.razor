@@ -1,0 +1,74 @@
+﻿@page "/dashboard/additives/new"
+@page "/dashboard/additives/{Id}"
+@using CafeApp.Business.Helpers.Dtos
+
+
+@inject IApplicationUnit _unit;
+@inject NavigationManager _navigation;
+<MudContainer Style="margin:20px;overflow-y:hidden" MaxWidth=MaxWidth.Large Class="mt-16">
+    <MudPaper Elevation="3">
+        <MudText Typo="Typo.h3" Align="Align.Center" GutterBottom="true">@Title</MudText>
+        <MudGrid Class="mt-16">
+            <MudItem xs="7">
+                <MudPaper Style="margin:10px" Elevation="3">
+
+                    <MudGrid>
+                        <MudItem Style="margin:5px" xs="6">
+                            <MudTextField Variant=Variant.Outlined T="string" Label="عنوان" @bind-Value=value.Title />
+                        </MudItem>
+                        <MudItem Style="margin:5px" xs="12">
+                            <MudStack Row>
+
+                                <MudItem xs="6">
+                                    <MudAutocomplete Variant="Variant.Outlined" Clearable=true Required=false T="MaterialDto" Label="ماده اولیه" @bind-Value="_parent"
+                                    SearchFunc=SearchUnit ToStringFunc="@(e=> e==null?null : $"{e.Title}")" />
+                                </MudItem>
+                                <MudItem xs="4">
+                                    <MudTextField Variant=Variant.Outlined T="long" Label="مقدار" @bind-Value=value.Amount />
+
+                                </MudItem>
+                            </MudStack>
+
+                        </MudItem>
+                        <MudItem Style="margin:5px" xs="6">
+                            <MudItem xs="6">
+                                <MudTextField Variant=Variant.Outlined T="long" Label="قیمت" @bind-Value=value.Price />
+
+                            </MudItem>
+                        </MudItem>
+                        <MudItem Style="margin:5px" xs="12">
+                            <MudText Inline=true>وضعیت</MudText>
+                            <MudToggleIconButton @bind-Toggled=@value.IsActive @ref=_isActive Variant=Variant.Text ToggledSize=Size.Large Color="Color.Error" ToggledColor=Color.Success Size=Size.Large ToggledIcon="@Icons.Material.Filled.ToggleOn" ToggledTitle="فعال" Title="غیرفعال" Icon="@Icons.Material.Filled.ToggleOff">
+
+                            </MudToggleIconButton>
+                        </MudItem>
+
+                        <MudItem xs="12" Class="d-flex justify-center">
+                            <MudButton OnClick=Submit Style="margin:10px" Variant="Variant.Filled" DisableElevation="true" Color="Color.Success" Size="Size.Large" Class="mt-8">ثبت</MudButton>
+                            <MudButton  Style="margin:10px" Variant="Variant.Filled" DisableElevation="true" Color="Color.Error" Size="Size.Large" Class="mt-8">لغو</MudButton>
+
+                        </MudItem>
+                    </MudGrid>
+                </MudPaper>
+            </MudItem>
+
+        </MudGrid>
+    </MudPaper>
+
+</MudContainer>
+@code {
+    [Parameter]
+    public string Id { get; set; }
+    private MaterialDto _parent = new MaterialDto();
+    string Title = "واحد جدید";
+    private MudToggleIconButton _isActive;
+
+    private async Task<IEnumerable<MaterialDto>> SearchUnit(string text,CancellationToken cancellationToken=default)
+    {
+        ListMaterialParameter parameter = new ListMaterialParameter();
+        parameter.Title = text;
+        var res = await _unit.Materials.GetPaged(parameter.GetSpecifications(),parameter);
+        return res.Items;
+    }
+}
+

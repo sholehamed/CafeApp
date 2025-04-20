@@ -1,0 +1,9 @@
+﻿
+<div class="product">
+    <img src="images/new.png" alt="new" class="@IsNew()">
+    <img src="data:image/png;base64,@Item.Image" alt="@Item.Title" class="imgitem">
+    <h2>@Item.Title</h2>
+    <p class="@HasStock()">تمام شد</p>
+    <p class="price">@Item.Price</p>
+    <p class="description">@Item.Description</p>
+</div>

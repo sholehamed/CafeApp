@@ -1,0 +1,18 @@
+﻿@using CafeApp.Business.Helpers.Dtos
+
+<tr paid=0>
+    <td>@Item.ProductTitle</td>
+    <td>
+        <span class="total">@Item.TotalAmount</span>
+    </td>
+    <td class="NotMobile">
+        <span class="quantity">@Item.PaidAmount</span>
+    </td>
+    <td>@Item.TotalPrice</td>
+    <td>@Item.UnitPrice</td>
+    <td class="NotMobile">
+        <div style="display: flex; justify-content: center;">
+            <MudCheckBox Disabled Value="Item.StateChecked" T="bool" ></MudCheckBox>
+        </div>
+    </td>
+</tr>

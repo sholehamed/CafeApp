@@ -1,0 +1,10 @@
+﻿@using CafeApp.Domain.Common
+@using CafeApp.Domain.Interfaces
+@using CafeApp.Shared.Util
+@inject NavigationManager Navigation
+@inject ServerOptions _server;
+@inject IApplicationUnit _unit;
+@inject INotification _notification;
+<div class="dashboard-table   @Item.State.ToString()" @onclick=Click><span>@Item.Title</span></div>
+
+ 

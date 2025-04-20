@@ -1,0 +1,50 @@
+﻿@using CafeApp.Business.Helpers.Dtos
+@using CafeApp.Domain.Interfaces
+@using CafeApp.Shared.Interfaces
+@layout EmptyLayout
+@inject NavigationManager _navigation;
+@inject IApplicationUnit _unit
+@inject INotification _notification
+
+<div class="mainbody">
+    <div class="login-container">
+        <!-- اضافه کردن لوگو -->
+        <img src="_content/CafeApp.Shared/images/logo.png" alt="لوگو" class="login-logo">
+
+        <div class="login-box">
+            <h2>پنل مدیریتی کافه لاین</h2>
+            <form>
+                <div class="input-container">
+                    <input type="text" @bind-value=model.Username id="username" placeholder="نام کاربری">
+                </div>
+                <div class="input-container">
+                    <input @bind-value=model.Password type="password" id="password" placeholder="رمز عبور">
+                </div>
+                <button @onclick=Login class="btn btn-success btn-lg col-md-8 col-12">ورود</button>
+                <div style="color:red">@msg</div>
+            </form>
+        </div>
+    </div>
+
+</div>
+@code {
+    string msg = string.Empty;
+    Login model = new Login();
+    async Task Login()
+    {
+
+        try
+        {
+            var res = _unit.Users.Login(model.Username, model.Password);
+            if (res)
+                _navigation.NavigateTo("/dashboard", true);
+
+        }
+        catch (Exception e)
+        {
+
+            msg = e.Message;
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+}

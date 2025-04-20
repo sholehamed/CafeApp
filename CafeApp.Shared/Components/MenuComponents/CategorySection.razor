@@ -1,0 +1,9 @@
+﻿@inject IApplicationUnit _unit;
+<div class="container">
+
+    @foreach (var item in _categories)
+    {
+        <CategoryProducts Item="item"></CategoryProducts>
+    }
+
+</div>

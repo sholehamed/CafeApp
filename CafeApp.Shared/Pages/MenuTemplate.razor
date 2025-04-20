@@ -1,0 +1,49 @@
+﻿@using CafeApp.Domain.Common
+@using CafeApp.Shared.Components.MenuComponents
+@using CafeApp.Shared.Layouts
+@using CafeApp.Shared.Util
+@using Microsoft.JSInterop
+@inject IJSRuntime _js;
+@layout EmptyLayout
+@inject ServerOptions _server;
+@inject NavigationManager _navigation;
+<PageTitle>@_title</PageTitle>
+<div class="menubody">
+
+<header class="header">
+        <div class="logo-container">
+            <div class="logo"></div>
+        </div>
+        <nav class="menu">
+            <ul>
+            </ul>
+        </nav>
+    </header>
+
+   <CategoryHeader></CategoryHeader>
+   <CategorySection></CategorySection>
+
+    <footer class="footer">
+        <div class="footerborder">
+            <div @onclick="Alert" style="cursor:pointer" class="footer-image">
+                <img src="/_content/CafeApp.Shared/images/ring.png" alt="Footer Image">
+            </div>
+        </div>
+    </footer>
+
+    <div class="call-box">
+        بعد از انتخاب زنگ بزنید
+    </div>
+
+    <div class="popup-overlay" id="popupOverlay">
+        <div class="popup-content">
+            <button class="popup-close" id="popupClose">فهمیدم</button>
+            <p id="msg-modal-text" >درخواست ثبت سفارش برای ویتر ارسال شد</p>
+        </div>
+    </div>
+  
+</div>
+    @code{
+        [Parameter]
+    public string? TableId { get; set; }
+    }

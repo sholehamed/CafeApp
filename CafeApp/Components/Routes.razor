@@ -1,0 +1,7 @@
+﻿@using CafeApp.Shared.Layouts
+<Router AppAssembly="@typeof(MauiProgram).Assembly" AdditionalAssemblies="new[]{typeof(AdminLayout).Assembly}">
+    <Found Context="routeData">
+        <RouteView RouteData="@routeData" DefaultLayout="@typeof(CafeApp.Shared.Layouts.AdminLayout)" />
+        <FocusOnNavigate RouteData="@routeData" Selector="h1" />
+    </Found>
+</Router>

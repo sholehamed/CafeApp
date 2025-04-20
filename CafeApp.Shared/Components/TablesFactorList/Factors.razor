@@ -1,0 +1,9 @@
+﻿@page "/dashboard/factors"
+@inject IApplicationUnit _unit
+<div class="row">
+@foreach (var item in factors)
+{
+    <FactorTable  Factor="item"></FactorTable>
+}
+</div>
+

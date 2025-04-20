@@ -1,0 +1,20 @@
+﻿@using CafeApp.Business.Helpers.Dtos
+
+<tr paid=0>
+    <td>@Item.ProductTitle</td>
+    <td>
+        <span class="total">@Item.TotalAmount</span>
+    </td>
+    <td class="NotMobile">
+        <button @onclick="@Minus" class="dongi adjust-button minus hide">-</button>
+        <span class="quantity">@Item.PaidAmount</span>
+        <button @onclick="Add" class="dongi adjust-button plus hide">+</button>
+    </td>
+    <td>@Item.TotalPrice</td>
+    <td>@Item.UnitPrice</td>
+    <td class="NotMobile">
+            <div  style="display: flex; justify-content: center;">
+                <MudCheckBox Value="Item.StateChecked" T="bool" ValueChanged="(x)=>{ApplyDeliver(Item,x);}" ></MudCheckBox>
+            </div>
+    </td>
+</tr>

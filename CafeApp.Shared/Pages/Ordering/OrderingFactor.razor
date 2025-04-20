@@ -1,0 +1,136 @@
+﻿@page "/dashboard/tableOrder/{TableId}"
+@page "/dashboard/order/{OrderId}"
+
+@using CafeApp.Business.Helpers.Dtos
+@using CafeApp.Domain.Common
+@using CafeApp.Domain.Interfaces
+@using CafeApp.Shared.Components.DashboardComponents
+@layout AdminLayout
+@inject NavigationManager _navigation;
+@inject IApplicationUnit _unit;
+@inject INotification _notification;
+@inject IDialogService _dialogService;
+<div style="display:flex">
+
+    <div class="order-system col-md-6 col-12">
+        @* <MudAutocomplete @bind-Value="_factor.CustomerId" InputMode="InputMode.search" Variant="Variant.Text" Clearable=true Required=false T="Guid" Label="مشتری"
+                         SearchFunc=SearchCustomer ToStringFunc="GetCustomerName" /> *@
+        <CategoriesSection Table="_selectedTable" @ref=_categoriesSection ShowItemsMethod="ShowItems"></CategoriesSection>
+        <CategoryItemsSection Table="_selectedTable" MinusFactorItem="MinusItem" AddFactorItem="AddItem" @ref=_selectedCategory></CategoryItemsSection>
+        <div style="text-align:center">
+            <MudButton OnClick="Fill" Style="background-color:#4CAF50 !important;height:60px;font-size:20px;" ButtonType="ButtonType.Button" Class=" fishbtn btn btn-settle-all col-2">ثبت سفارش</MudButton>
+        </div>
+    </div>
+    <div class="order-system col-md-6 col-12">
+        <Factor ItemsSection="_selectedCategory" Pay="Pay" Table="_selectedTable" @ref=_factorPanel></Factor>
+        توضیحات
+        <MudPaper Style="border-radius:15px" Elevation="20">
+            <MudTextField @bind-Text="_selectedTable.Factor.Description" Style="padding:5px" T="string" Lines="5"></MudTextField>
+            <MudButton OnClick="Fill" Style="background-color:green" ButtonType="ButtonType.Button" Class="mobile-submit fishbtn btn btn-settle-all col-12">ثبت سفارش</MudButton>
+
+        </MudPaper>
+    </div>
+
+</div>
+@code {
+    [Parameter]
+    public string? TableId { get; set; }
+
+    [Parameter]
+    public string? OrderId { get; set; }
+
+
+    private async Task Fill()
+    {
+        try
+        {
+            if (isNew)
+            {
+                CreateOrderParameter orderParameter = new CreateOrderParameter
+                    {
+                        Id = Guid.NewGuid(),
+                        Description = _selectedTable.Factor.Description,
+                        Type = Domain.Common.FactorType.Inside,
+                        Time = DateTime.Now,
+                        State = Domain.Common.FactorState.New,
+                        UserId = Guid.Parse("C5A4121B-7FE9-48F8-9576-09B6F082F494"),
+                        CustomerId = _selectedTable.Factor.CustomerId,
+                        TableId = _selectedTable.Factor.TableId,
+                        Items = _selectedTable.Factor.Items.Select(x => new CreateOrderItemParameter
+                        {
+                            Id = x.Id,
+                            HasAdditive = false,
+                            ProductId = x.ProductId,
+                            TotalPrice = x.TotalPrice,
+                            Amount = x.TotalAmount,
+                            Additives = null
+                        }).ToList()
+                    };
+                if (orderParameter.CustomerId == Guid.Empty)
+                {
+                    orderParameter.CustomerId = null;
+                }
+                await _unit.Orders.CreateAsync(orderParameter);
+                _selectedTable.Factor.State = (short)FactorState.New;
+                _selectedTable.Factor.Type = (short)FactorType.Inside;
+                _selectedTable.Factor.Id = orderParameter.Id;
+                await TablesPanel.FillTable(_selectedTable.Factor.TableId);
+                _notification.NotifySuccess();
+                isNew = false;
+            }
+            else
+            {
+                UpdateOrderParameter orderParameter = new UpdateOrderParameter
+                    {
+                        Id = this._factorPanel.Table.Factor.Id,
+                        Description = this._factorPanel.Table.Factor.Description,
+                        TableId = this._factorPanel.Table.Factor.TableId,
+                        Items = this._factorPanel.Table.Factor.Items.Select(x => new CreateOrderItemParameter
+                        {
+                            Id = x.Id,
+                            OrderId = this._factorPanel.Table.Factor.Id,
+                            HasAdditive = false,
+                            ProductId = x.ProductId,
+                            TotalPrice = x.TotalPrice,
+                            Amount = x.TotalAmount,
+                            Additives = null
+                        }).ToList()
+                    };
+                if (this._factorPanel.Table.Factor.CustomerId == Guid.Empty)
+                    orderParameter.CustomerId = null;
+                // await _unit.Orders.DeleteAsync(this._factorPanel.Table.Factor.Id, false);
+                await _unit.Orders.UpdateAsync(orderParameter);
+            }
+            _navigation.NavigateTo("dashboard/factors");
+        }
+        catch (Exception e)
+        {
+
+            throw;
+        }
+    }
+    public async Task Pay()
+    {
+        var res = await _dialogService.ShowMessageBox("تایید", "آیا اطمینان دارید", "تایید", null, "لغو");
+        if (res.Value)
+        {
+            if (string.IsNullOrEmpty(OrderId))
+                await _unit.Orders.ChangeState(_selectedTable.Factor.Id, 4);
+            else
+                await _unit.Orders.ChangeState(Guid.Parse(OrderId), 4);
+            EmptyLocalTable();
+            await TablesPanel.EmptyTable(_selectedTable.Factor.TableId);
+            await TablesPanel.ReloadTables();
+            _notification.NotifySuccess();
+            _navigation.NavigateTo("dashboard/factors");
+
+        }
+    }
+
+    private void EmptyLocalTable()
+    {
+        var index = _tables.IndexOf(_tables.FirstOrDefault(x => x.Id == _selectedTable.Id));
+        _tables[index].State = Business.Helpers.Dtos.TableState.empty;
+        _selectedTable.State = Business.Helpers.Dtos.TableState.empty;
+    }
+}

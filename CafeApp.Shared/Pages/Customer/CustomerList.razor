@@ -1,0 +1,94 @@
+﻿@page "/dashboard/customers"
+@using CafeApp.Business.Helpers.Dtos
+@using CafeApp.Domain.Interfaces
+@using CafeApp.Shared.RestClient.Interfaces
+@layout AdminLayout
+@inject IApplicationUnit _unit;
+@inject NavigationManager _navigation;
+@inject IRestUnit _restUnit;
+@inject IDialogService _dialogService;
+@inject INotification _notification;
+<MudIconButton OnClick=GoToCreatePAge Icon="@Icons.Material.Filled.Add" Title="جدید">افزودن</MudIconButton>
+<MudIconButton OnClick=Sync Icon="@Icons.Material.Filled.Sync" Title="ارسال به سرور">ارسال به سرور</MudIconButton>
+<MudPaper Style="margin-bottom:20px">
+    <MudStack Row>
+        <div class="col-md-1 col-3">
+            <MudTextField T="string" Label="نام و نام خانوادگی"></MudTextField>
+        </div>
+
+        <div class="col-md-1 col-3">
+            <MudSelect Label="جنسیت" Value="null" T="byte?">
+                <MudSelectItem Value=null T="byte?">همه</MudSelectItem>
+                <MudSelectItem Value=1 T="byte?">مرد</MudSelectItem>
+                <MudSelectItem Value=0 T="byte?">زن</MudSelectItem>
+            </MudSelect>
+        </div>
+
+        <div class="col-md-1 col-3">
+            <MudSelect Label="وضعیت" Value="null" T="bool?">
+                <MudSelectItem Value=null T="bool?">همه</MudSelectItem>
+                <MudSelectItem Value=true T="bool?">فعال</MudSelectItem>
+                <MudSelectItem Value=false T="bool?">غیرفعال</MudSelectItem>
+            </MudSelect>
+        </div>
+
+    </MudStack>
+</MudPaper>
+
+<MudDataGrid @ref="_dataGrid" Striped=true ServerData=LoadData T="CustomerDto">
+
+    <Columns>
+
+        <TemplateColumn>
+            <CellTemplate>
+                <MudStack Row>
+                    <MudAvatar>
+                        <MudImage Src=@string.Format("{0},{1}","data:image/png;base64",context.Item.Image)></MudImage>
+                    </MudAvatar>
+                </MudStack>
+            </CellTemplate>
+        </TemplateColumn>
+        <PropertyColumn Title="نام و نام خانوادگی" Property="x=>x.FullName"></PropertyColumn>
+        <PropertyColumn Title="تلفن همراه" Property="x=>x.PhoneNumber"></PropertyColumn>
+
+        <PropertyColumn Title="جنسیت" Property="x=>x.GenderStr"></PropertyColumn>
+        <PropertyColumn Title="تاریخ تولد" Property="x=>x.BirthdayStr"></PropertyColumn>
+
+        <TemplateColumn Title="وضعیت">
+            <CellTemplate>
+                <MudStack Row>
+                    <MudCheckBox ReadOnly=true UnCheckedColor=Color.Error Color=Color.Success Value="context.Item.IsActive"></MudCheckBox>
+                </MudStack>
+            </CellTemplate>
+        </TemplateColumn>
+        <TemplateColumn CellClass="d-flex justify-end">
+            <CellTemplate>
+                <MudStack Row>
+
+                    <MudIconButton OnClick="()=>Edit(context.Item.Id)" Icon="@Icons.Material.Filled.Edit" />
+                    <MudIconButton OnClick="()=>Delete(context.Item.Id)" Icon="@Icons.Material.Filled.Delete" />
+                </MudStack>
+            </CellTemplate>
+        </TemplateColumn>
+    </Columns>
+    <PagerContent>
+        <MudDataGridPager RowsPerPageString="اندازه صفحه"></MudDataGridPager>
+    </PagerContent>
+</MudDataGrid>
+
+
+@code {
+    private MudDataGrid<CustomerDto> _dataGrid;
+
+
+    private string IsActiveString(bool isActive)
+    {
+        if (isActive)
+            return "فعال";
+        else
+            return "غیرفعال";
+    }
+
+
+
+}

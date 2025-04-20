@@ -1,0 +1,78 @@
+﻿@using CafeApp.Business.Helpers.Dtos
+@using CafeApp.Business.Interfaces
+@using CafeApp.Domain.Interfaces
+@inject IApplicationUnit _unit;
+@inject NavigationManager _navigation;
+@inject INotification _notification;
+@page "/dashboard/tables/new"
+@page "/dashboard/tables/{id}"
+
+<MudCard>
+    <MudForm Model="@_model" @ref="@_form">
+        <MudCardContent>
+            <MudTextField @bind-Value="_model.Title"
+            For="@(() => _model.Title)"
+            Immediate="true"
+            Label="عنوان" />
+            <MudTextField @bind-Value="_model.Number"
+            For="@(() => _model.Number)"
+            Immediate="true"
+            Label="شماره" />
+            <MudCheckBox @bind-Value="_model.IsActive"
+            For="@(() => _model.IsActive)"
+            Immediate="true"
+            Label="وضعیت" />
+
+
+        </MudCardContent>
+        <MudCardContent Class="pa-0">
+
+
+
+        </MudCardContent>
+    </MudForm>
+    <MudCardActions>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto" OnClick="@(async () => await Submit())">ثبت</MudButton>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto" OnClick=Cancel>لغو</MudButton>
+
+    </MudCardActions>
+</MudCard>
+
+@code {
+    [Parameter]
+    public string Id { get; set; }
+
+    private MudForm _form;
+    private TableDto _model = new TableDto();
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (!string.IsNullOrEmpty(Id))
+            _model = await _unit.Tables.GetById(Guid.Parse(Id));
+        base.OnInitialized();
+    }
+
+    public async Task Submit()
+    {
+        if(string.IsNullOrEmpty(Id))
+        {
+            CreateTableParameter parameter = new CreateTableParameter();
+            parameter = new CreateTableParameter {Number=_model.Number, Title = _model.Title, IsActive = _model.IsActive };
+            await _unit.Tables.CreateAsync(parameter);
+            _notification.NotifySuccess();
+        }
+        else{
+            UpdateTableParameter parameter = new UpdateTableParameter();
+            parameter = new UpdateTableParameter {Number=_model.Number,Id=_model.Id, Title = _model.Title, IsActive = _model.IsActive };
+            await _unit.Tables.UpdateAsync(parameter);
+            _notification.NotifySuccess();
+        }
+        Cancel();
+    }
+    public void Cancel()
+    {
+        _navigation.NavigateTo("/dashboard/tables");
+    }
+
+   
+}

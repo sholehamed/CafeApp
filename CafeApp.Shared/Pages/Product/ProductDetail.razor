@@ -1,0 +1,127 @@
+﻿@using System.Globalization
+@using CafeApp.Business.Helpers.Dtos
+@using CafeApp.Domain.Interfaces
+@using Microsoft.AspNetCore.Components.Forms
+@inject IApplicationUnit _unit;
+@inject INotification _notification;
+@inject NavigationManager _navigation;
+@page "/dashboard/products/new"
+@page "/dashboard/products/{Id}"
+
+<MudContainer Style="margin:20px;overflow-y:hidden" MaxWidth=MaxWidth.Large Class="mt-16">
+    <MudPaper Elevation="3">
+        <MudText Typo="Typo.h3" Align="Align.Center" GutterBottom="true">@Title</MudText>
+        <MudGrid Class="mt-16">
+            <MudItem xs="5">
+                <MudPaper Style="margin:10px" Elevation="3">
+
+                    <MudGrid>
+                        <MudItem Style="margin:5px" xs="6">
+                            <MudTextField Variant=Variant.Outlined T="string" Label="عنوان" @bind-Value=value.Title />
+                        </MudItem>
+                        <MudItem Style="margin:5px" xs="6">
+                            <MudAutocomplete Variant="Variant.Outlined" Clearable=true Required=false T="ProductCategoryDto" Label="دسته بندی " @bind-Value="_category"
+                                             SearchFunc=SearchCategory ToStringFunc="@(e=> e==null?null : $"{e.Title}")" />
+                        </MudItem>
+                        <MudItem Style="margin:5px" xs="12">
+                            <MudTextField Culture=cultureInfo Variant=Variant.Outlined Style="height:fit-content;" T="string" @bind-Value="value.Description" Label="توضیحات" />
+                        </MudItem>
+                        <MudItem Style="margin:5px" xs="12">
+                            <MudTextField Culture=cultureInfo Variant=Variant.Outlined Style="height:fit-content;" T="long" @bind-Value="value.Price" Label="قیمت" />
+                        </MudItem>
+                        <MudItem Style="margin:5px" xs="12">
+                            <MudItem xs="6">
+                            <MudText Inline=true>وضعیت</MudText>
+                            <MudToggleIconButton @bind-Toggled=@value.IsActive  Variant=Variant.Text ToggledSize=Size.Large Color="Color.Error" ToggledColor=Color.Success Size=Size.Large ToggledIcon="@Icons.Material.Filled.ToggleOn" ToggledTitle="فعال" Title="غیرفعال" Icon="@Icons.Material.Filled.ToggleOff">
+                            </MudToggleIconButton>
+                            </MudItem>
+                            <MudItem xs="6">
+                                <MudText Inline=true>جدید</MudText>
+                                <MudToggleIconButton @bind-Toggled=@value.IsNew Variant=Variant.Text ToggledSize=Size.Large Color="Color.Error" ToggledColor=Color.Success Size=Size.Large ToggledIcon="@Icons.Material.Filled.ToggleOn" ToggledTitle="فعال" Title="غیرفعال" Icon="@Icons.Material.Filled.ToggleOff">
+                                </MudToggleIconButton>
+                            </MudItem>
+                        </MudItem>
+
+                        <MudItem xs="12" Class="d-flex justify-center">
+                            <MudButton OnClick=Submit Style="margin:10px" Variant="Variant.Filled" DisableElevation="true" Color="Color.Success" Size="Size.Large" Class="mt-8">ثبت</MudButton>
+                            <MudButton OnClick=Cancel  Style="margin:10px" Variant="Variant.Filled" DisableElevation="true" Color="Color.Error" Size="Size.Large" Class="mt-8">لغو</MudButton>
+
+                        </MudItem>
+                    </MudGrid>
+                </MudPaper>
+            </MudItem>
+            <MudItem xs="7">
+               <MudStack >
+
+               <MudPaper Class="d-flex flex-column" Elevation="3">
+                <MudText Typo="Typo.h5" GutterBottom="true">تصویر</MudText>
+                    <MudImage Src=@string.Format("{0},{1}","data:image/png;base64",value.Image) Height="100" Width="100" Style="border-radius:10px"></MudImage>
+                    <MudFileUpload T="IBrowserFile" Accept=".png, .jpg" FilesChanged="UploadFiles" MaximumFileCount="1">
+                            <ActivatorContent>
+                            <MudButton HtmlTag="label"
+                                       Variant="Variant.Filled"
+                                       Color="Color.Primary"
+                                       StartIcon="@Icons.Material.Filled.CloudUpload">
+                                Only image files
+                            </MudButton>
+                        </ActivatorContent>
+                    </MudFileUpload>
+
+                </MudPaper>
+                <MudStack Row>
+                    <MudItem xs="6">
+                        <MudPaper>
+                                <MudText Typo="Typo.h5" GutterBottom="true">مواد اولیه</MudText>
+                                <MudAutocomplete @ref=_materialSelect SelectOnClick=true Variant="Variant.Outlined" ValueChanged="MaterialChanged" ToStringFunc="MaterialToString" T="MaterialDto" SearchFunc="SearchMaterials">
+                                    <NoItemsTemplate>  خالی </NoItemsTemplate>
+                                </MudAutocomplete>
+                                <MudList T="MaterialSelectModel">
+                                    @foreach (var item in _materials)
+                                    {
+                                        <MudListItem>
+                                            <MudStack Justify="Justify.FlexStart" Row>
+                                                <MudText  Inline=true GutterBottom=true> @item.Title</MudText>
+                                                <MudText> @item.Unit</MudText>
+                                                <MudTextField  @bind-Value=item.Amount  InputType="InputType.Number" Size=Size.Small Style="width:50px;margin-top:-12px" MaxLength=4 T=long></MudTextField>
+                                                <MudIconButton OnClick="()=>AddUpdateMaterialAmount(item.Id,item.Amount)" Size=Size.Small Style="margin-top:-12px" Icon="@Icons.Material.Filled.Check"></MudIconButton>
+                                                <MudIconButton OnClick="()=>CancelMaterial(item.Id)" Size=Size.Small Style="margin-top:-12px" Icon="@Icons.Material.Filled.Cancel"></MudIconButton>
+
+                                            </MudStack>
+                                        </MudListItem>
+                                    }
+                                </MudList>
+                        </MudPaper>
+                    </MudItem>
+                        <MudItem xs="6">
+                            <MudPaper>
+                                <MudText Typo="Typo.h5" GutterBottom="true">افزودنی ها</MudText>
+                                <MudAutocomplete @ref=_additiveSelect SelectOnClick=true Variant="Variant.Outlined" ValueChanged="AdditiveChanged" ToStringFunc="AdditiveToString" T="AdditiveDto" SearchFunc="SearchAdditives">
+                                    <NoItemsTemplate>  خالی </NoItemsTemplate>
+                                </MudAutocomplete>
+                                <MudList T="AdditiveSelectModel">
+                                    @foreach (var item in _additives)
+                                    {
+                                        <MudListItem>
+                                            <MudStack Justify="Justify.SpaceBetween" Row>
+                                                <MudText Inline=true GutterBottom=true> @item.Title</MudText>
+                                                <MudIconButton OnClick="()=>CancelAdditive(item.Id)" Size=Size.Small Style="margin-top:-12px" Icon="@Icons.Material.Filled.Cancel"></MudIconButton>
+                                            </MudStack>
+                                        </MudListItem>
+                                    }
+                                </MudList>
+                            </MudPaper>
+                        </MudItem>
+                </MudStack>
+               </MudStack> 
+            </MudItem>
+        </MudGrid>
+    </MudPaper>
+
+</MudContainer>
+@code {
+    [Parameter]
+    public string Id { get; set; }
+    CultureInfo cultureInfo = CultureInfo.GetCultureInfo("fa-ir");
+    string Title = "دسته بندی جدید";
+    private MudToggleIconButton _isActive;
+}

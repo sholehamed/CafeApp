@@ -1,0 +1,8 @@
+@page "/menu"
+@using CafeApp.Shared.Layouts
+@layout EmptyLayout
+<CafeApp.Shared.Pages.MenuTemplate></CafeApp.Shared.Pages.MenuTemplate>
+@code {
+    [Parameter]
+    public string? TableId { get; set; }
+}

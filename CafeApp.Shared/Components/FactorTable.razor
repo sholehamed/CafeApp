@@ -1,0 +1,71 @@
+﻿@using CafeApp.Shared.Components.DashboardComponents
+@inject NavigationManager _navigation;
+
+<div class="invoice-wrapper col-md-4 col-12">
+    <!-- فاکتور اول -->
+    <div class="invoice-item">
+        <header class="invoice-header">
+            <div class="header-left">
+                <div class="detail">
+                    <div>
+                        @* <MudTextField Label="مشتری" ReadOnly="true" T="string" @bind-Value="Item.CustomerName"></MudTextField> *@
+                        
+                    </div>
+                   </div>
+@*                 <div class="detail">ویتر:  @Item.UserName</div>
+ *@            </div>
+            <div class="header-center">
+                <div class="table-number">@Factor.TableTitle</div>
+            </div>
+            <div class="header-right">
+                <div class="detail">تاریخ: @Factor.RecordDate</div>
+                <div class="detail">ساعت: @Factor.RecordTime</div>
+
+                @* <div class="detail">فاکتور: @Item.FactorNumber</div> *@
+            </div>
+        </header>
+        <div class="invoice-body">
+            <table class="product-table">
+                <thead>
+                    <tr>
+                        <th>محصول</th>
+                        <th> نعداد</th>
+                        <th class="NotMobile">تسویه شده</th>
+                        <th>قیمت</th>
+                        <th>فی</th>
+                        <th class="NotMobile">تحویل</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Factor.Items)
+                    {
+                        <FactorTableItem  Item="item"></FactorTableItem>
+                    }
+                </tbody>
+            </table>
+            <div class="invoice-summary">
+                <div class="summary-item">
+                    <span class="summary-label">مجموع:</span>
+                    <span class="summary-value">@Factor.TotalPrice</span>
+                </div>
+               @*  <div class="summary-item" style="background-color:#beff50">
+                    <span class="summary-label">تسویه دنگی:</span>
+                    <span class="summary-value">@_livePaidAmount</span>
+                </div> *@
+                <div class="summary-item">
+                    <span class="summary-label">تسویه شده:</span>
+                    <span class="summary-value">@Factor.Paid</span>
+                </div>
+                <div class="summary-item">
+                    <span class="summary-label">مانده:</span>
+                    <span class="summary-value">@(Factor.TotalPrice - Factor.Paid)</span>
+                </div>
+
+            </div>
+            <div style="display:flex;justify-content:center">
+                <button @onclick=Show class="fishbtn btn btn-settle-all">مشاهده</button>
+            </div>
+        </div>
+        
+    </div>
+</div>

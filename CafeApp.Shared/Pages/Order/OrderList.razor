@@ -1,0 +1,96 @@
+﻿@page "/dashboard/orders"
+@using CafeApp.Business.Helpers.Dtos
+@using CafeApp.Domain.Interfaces
+@using CafeApp.Shared.RestClient.Interfaces
+@using System.Globalization
+@layout AdminLayout
+@inject IApplicationUnit _unit;
+@inject NavigationManager _navigation;
+@inject IRestUnit _restUnit;
+@inject IDialogService _dialogService;
+@inject INotification _notification;
+<MudIconButton OnClick=GoToCreatePAge Icon="@Icons.Material.Filled.Add" Title="جدید">افزودن</MudIconButton>
+<MudIconButton OnClick=Sync Icon="@Icons.Material.Filled.Sync" Title="ارسال به سرور">ارسال به سرور</MudIconButton>
+
+<MudPaper Style="margin-bottom:20px">
+    <MudStack Row>
+        <div class="col-md-2 col-4">
+            <MudDateRangePicker ValueChanged=OnValueChanged @bind-DateRange=_dateRange Label="تاریخ" Style="font-family:Ariz" Culture=cultureInfo></MudDateRangePicker>
+        </div>
+        <div class="col-md-2 col-3">
+            <MudAutocomplete Label="مشتری" T="CustomerDto"></MudAutocomplete>
+        </div>
+        <div class="col-md-1 col-3">
+            <MudSelect Label="وضعیت" @bind-Value=_filter.State T="byte?">
+                <MudSelectItem Value=0 T="byte?">همه</MudSelectItem>
+                <MudSelectItem Value=1 T="byte?">جدید</MudSelectItem>
+                <MudSelectItem Value=2 T="byte?">آماده سازی</MudSelectItem>
+                <MudSelectItem Value=3 T="byte?">تحویل</MudSelectItem>
+                <MudSelectItem Value=4 T="byte?">تسویه</MudSelectItem>
+                <MudSelectItem Value=5 T="byte?">لغو</MudSelectItem>
+            </MudSelect>
+        </div>
+        <MudIconButton OnClick=_dataGrid.ReloadServerData Icon="@Icons.Material.Filled.Search" Title="ارسال به سرور">ارسال به سرور</MudIconButton>
+
+    </MudStack>
+</MudPaper>
+
+<MudDataGrid @ref="_dataGrid" Striped=true ServerData=LoadData T="OrderDto">
+
+    <Columns>
+        <PropertyColumn Title="تاریخ" Property="x=>x.Date"></PropertyColumn>
+        <PropertyColumn Title="زمان" Property="x=>x.Time"></PropertyColumn>
+        <PropertyColumn Title="مشتری" Property="x=>x.Customer"></PropertyColumn>
+        <PropertyColumn Title="   میز" Property="x=>x.Table"></PropertyColumn>
+        <PropertyColumn Title="   مجموع کل" Property="x=>x.TotalPrice"></PropertyColumn>
+        <PropertyColumn Title="   مجموع پرداخت شده" Property="x=>x.TotalPaid"></PropertyColumn>
+        <TemplateColumn>
+            <CellTemplate>
+                <MudStack Row>
+
+                    <MudButtonGroup>
+                        <MudButton Disabled="@GetStateButtonEnable(context.Item.State,"جدید")" Style="@GetChangeStateButtonStyle(context.Item.State,"جدید")" Color="Color.Surface"> جدید</MudButton>
+                        <MudButton Onclick="()=>ChangeState(context.Item.Id,2)" Disabled="@GetStateButtonEnable(context.Item.State,"آماده سازی")" Style="@GetChangeStateButtonStyle(context.Item.State,"آماده سازی")" Color="Color.Surface">آماده سازی</MudButton>
+                        <MudButton Onclick="()=>ChangeState(context.Item.Id,3)" Disabled="@GetStateButtonEnable(context.Item.State,"تحویل")" Style="@GetChangeStateButtonStyle(context.Item.State,"تحویل")" Color="Color.Surface">تحویل</MudButton>
+                        <MudButton Disabled="true" Style="@GetChangeStateButtonStyle(context.Item.State,"تسویه شد")" Color="Color.Surface">تسویه شد</MudButton>
+
+                        <MudButton Onclick="()=>ChangeState(context.Item.Id,0)" Disabled="@GetStateButtonEnable(context.Item.State,"لغو")" Style="@GetChangeStateButtonStyle(context.Item.State,"لغو")" Color="Color.Surface">لغو</MudButton>
+
+                    </MudButtonGroup>
+                    <MudButtonGroup>
+                        <MudButton OnClick="()=>GoToDetails(context.Item.Id)" Style="background-color:forestgreen;margin:5px" Color="Color.Surface"> تسویه</MudButton>
+                    </MudButtonGroup>
+                    <MudButton OnClick="()=>Delete(context.Item.Id)" Style="background-color:red;margin:5px" Color="Color.Surface"> حذف</MudButton>
+
+                </MudStack>
+            </CellTemplate>
+        </TemplateColumn>
+
+
+
+    </Columns>
+    <PagerContent>
+        <MudDataGridPager  RowsPerPageString="اندازه صفحه"></MudDataGridPager>
+    </PagerContent>
+</MudDataGrid>
+
+
+@code {
+    private MudDataGrid<OrderDto> _dataGrid;
+    private CultureInfo cultureInfo = new CultureInfo("fa-ir");
+    private DateRange _dateRange = new DateRange();
+    private string IsActiveString(bool isActive)
+    {
+        if (isActive)
+            return "فعال";
+        else
+            return "غیرفعال";
+    }
+
+    private void OnValueChanged(PickerVariant variant)
+    {
+        _filter.Start = _dateRange!.Start;
+        _filter.End = _dateRange!.End;
+    }
+}
+

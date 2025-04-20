@@ -1,0 +1,26 @@
+﻿@using CafeApp.Business.Helpers.Dtos
+@using Microsoft.JSInterop
+@inject IJSRuntime _js;
+
+<div class="items" id="category1">
+    <h3>@Table.SelectedCategory.Title</h3>
+    <ul>
+        @foreach (var item in Table.SelectedCategory.Items)
+        {
+            <li style="@GetStyle()"  class="@GetClass(item)" id="item-@item.Id" @oncontextmenu="()=>Minus(item)" @onclick="()=>Add(item)">
+                @item.Title
+                <span  class="count" style="display: @GetItemDisplay(item.Amount);">@item.Amount</span>
+            </li>
+        }
+    </ul>
+</div>
+
+@code {
+    string GetClass(DashboardProductModel item)
+    {
+        string _styleClass = string.Empty;
+        if (item.Amount > 0)
+            _styleClass = "selected";
+        return _styleClass;
+    }
+}
